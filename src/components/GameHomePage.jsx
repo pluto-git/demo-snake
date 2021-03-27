@@ -26,7 +26,7 @@ function GameHomePage(props) {
   return (
     <div>
       {/* Uncommit below to check our DB */}
-       {/* <RatingTable data={players} /> */}
+       {game}
     </div>
   );
 }
