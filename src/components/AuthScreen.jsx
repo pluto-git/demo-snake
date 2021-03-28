@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import {useHistory, Route} from "react-router-dom";
+import {useHistory, Redirect} from "react-router-dom";
 import GameHomePage from "./GameHomePage.jsx";
 
 import Card from "../ui/Card.jsx";
@@ -26,9 +26,9 @@ function AuthScreen() {
     const enteredLogin = loginInputRef.current.value;
     const id = getId(enteredLogin + "_");
     localStorage.setItem(enteredLogin, id);
-    //redirecting
- 
+
     history.push('/starting');
+    
   }
 
   function checkLength(event){

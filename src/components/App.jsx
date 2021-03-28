@@ -27,7 +27,8 @@ function App() {
   return (
    
     <div>
-     {localStorage.length>0? <Redirect to="/starting" />:null}
+      {localStorage.removeItem("loglevel:webpack-dev-server")}
+     {localStorage.length>0? <Redirect to="/starting" />:null} 
     <Switch>
     <Route path="/" exact={true}>
       <div className={classes.flexing}>
@@ -37,8 +38,10 @@ function App() {
         <StickyFooter />
       </div>
     </Route>
-  
-    <Route path="/starting" exact={true} >
+    <Route path="/rating">
+      <RatingTable data={players} />
+    </Route>
+    <Route path="/starting" >
        <GameHomePage data={players}/>
     </Route>
     </Switch>

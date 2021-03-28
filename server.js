@@ -34,14 +34,15 @@ let RatingSchema = new mongoose.Schema(
   {
     _id: String,
     login: String,
-    score: Number
+    score: Number,
+    currentLevel: Number
   },
 )
 
 
 let Rating = db.model("Rating", RatingSchema);
 
-
+//everything
 app.get("/api/rating", (req,res)=>{
 
   Rating.find({ }, (err, players) =>{
@@ -55,9 +56,13 @@ app.get("/api/rating", (req,res)=>{
 });
 
 
-
+//everything besides level and sorted.
 app.get("/api/rating/sorted", (req,res)=>{
-    Rating.find({},null, { sort: {score: -1}}, (err, players) =>{
+  var usersProjection = {
+    __v: false,
+    currentLevel: false
+  };
+    Rating.find({},null,userProjection, { sort: {score: -1}}, (err, players) =>{
         if(!err){
           res.json(players);
           console.log(players);
@@ -65,6 +70,24 @@ app.get("/api/rating/sorted", (req,res)=>{
           res.status(400).json({"error": err});
         }
       });
+});
+//only level; by getting id
+app.post("/api/rating/level", (req, res)=>{
+  var usersProjection = {
+    __v: false,
+    score: false,
+    login: false,
+    _id: false
+  };
+  Rating.findById({_id: req.body._id}, usersProjection,(err, level)=> {
+    if(!err){
+      res.json(level);
+      console.log(level);
+    }else{
+      res.status(400).json({"error": err});
+    }
+  });   
+
 });
 
 app.post("/api/rating/add", (req,res)=>{
@@ -78,7 +101,8 @@ app.post("/api/rating/add", (req,res)=>{
       var usersProjection = {
         __v: false,
         _id: false,
-        login: false
+        login: false,
+        currentLevel: false
       };
       //get the initialScore from the existing user
       Rating.find({_id:user._id}, usersProjection, function (err, initialScore) {
@@ -87,11 +111,10 @@ app.post("/api/rating/add", (req,res)=>{
 
             //get the score that was passed through req.body
             const scoreQuery = { score: user.score};
-
             //console.log("scoreQuery "+typeof(scoreQuery.score));
             const newScore = initialScore[0].score + scoreQuery.score;
             console.log(newScore);
-            Rating.updateOne({"_id":user._id}, {"score": newScore}, function(err){
+            Rating.updateOne({"_id":user._id}, {"score": newScore, "currentLevel": user.currentLevel}, function(err){
               if(err){
                 console.log(err);
               }else{
@@ -119,8 +142,6 @@ app.post("/api/rating/add", (req,res)=>{
     }
 
   });
-
-
 });
 
 app.delete("/api/rating/delete", (req,res) =>{
@@ -132,6 +153,7 @@ app.delete("/api/rating/delete", (req,res) =>{
     }
   });
 });
+
 
 
 app.listen(PORT, () => {

@@ -5,8 +5,10 @@ var snake;
 var food;
 var cursors;
 
-var level = 1;
 
+var snakeLevel = 0;
+
+var neededPtsToWin = 0;
 //timer
 var text;
 var c = 60;
@@ -30,10 +32,14 @@ class GameScene extends Phaser.Scene {
 
   init(data){
     
-    if(data.c>0){
-    c = data.c;
+    if(data.time>0){
+    c = data.time;
     score = 0;
     }
+    this.name = data.name;
+    this.id = data.id;
+    this.level = data.level+1;
+    
   }
   preload() {
     this.load.image('food', coin);
@@ -42,7 +48,10 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
- 
+    snakeLevel = this.level;
+    neededPtsToWin = snakeLevel*15;
+
+    console.log("snake level is "+snakeLevel);
     //changing the background colour
     this.objects.camera = this.cameras.add(0, 0, 640, 480);
     this.objects.camera.setBackgroundColor('#2b2e4a');
@@ -50,7 +59,9 @@ class GameScene extends Phaser.Scene {
     //adding a timedEvent( a countdown)
     text = this.add.text(32, 32);
     timedEvent = this.time.addEvent({ delay: 1000, callback: onEvent, callbackScope: this, loop: true })
-
+    var levelText = this.add.text(550,32);
+    levelText.setText("Level: " + snakeLevel);
+  
     scoringText = this.add.text(320,32);
     var Food = new Phaser.Class({
 
@@ -91,8 +102,12 @@ class GameScene extends Phaser.Scene {
           this.head.setOrigin(0);
 
           this.alive = true;
-
-          this.speed = 100 * level;
+          if(snakeLevel <=9){
+          this.speed = 120-snakeLevel/10;
+          }else{
+            this.speed=10;
+          }
+          
 
           this.moveTime = 0;
 
@@ -236,11 +251,17 @@ class GameScene extends Phaser.Scene {
     //for the timer
     text.setText("Left s: " + c);
     //for the scoringText
-    scoringText.setText("Score is: "+score);
-
+    scoringText.setText("Score is: "+score+"/"+neededPtsToWin);
+    
     if (!snake.alive) {
       this.scene.start("FinalScene", {
-        result: "dead", score:score
+        result: "dead", score:score, level:snakeLevel, id: this.id, name: this.name
+      });
+    }
+    //condition to win
+    if(neededPtsToWin === score){
+      this.scene.start("FinalScene", {
+        result: "won", score:score, level:snakeLevel, id: this.id, name: this.name
       });
     }
 
@@ -332,7 +353,7 @@ function onEvent() {
   {
       timedEvent.remove(false);
       this.scene.start("FinalScene", {
-        result: "dead", score:score
+        result: "dead", score:score, level:snakeLevel, id: this.id, name: this.name
       });
   }
 }

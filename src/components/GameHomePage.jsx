@@ -11,6 +11,7 @@ function GameHomePage(props) {
 
   var config = {
     type: Phaser.AUTO,
+    parent:"game",
     width: 640,
     height: 480,
     scale: {
@@ -18,7 +19,10 @@ function GameHomePage(props) {
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     backgroundColor: "#5DACD8",
-    scene: [StartingScene, GameScene, FinalScene],
+    dom: {
+      createContainer: true
+      },
+    scene: [StartingScene,GameScene,FinalScene]
   };
 
   var game = new Phaser.Game(config);
