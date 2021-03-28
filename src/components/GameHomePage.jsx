@@ -11,7 +11,7 @@ function GameHomePage(props) {
 
   var config = {
     type: Phaser.AUTO,
-    parent:"game",
+    parent: "game",
     width: 640,
     height: 480,
     scale: {
@@ -20,17 +20,17 @@ function GameHomePage(props) {
     },
     backgroundColor: "#5DACD8",
     dom: {
-      createContainer: true
-      },
-    scene: [StartingScene,GameScene,FinalScene]
+      createContainer: true,
+    },
+    scene: [StartingScene, GameScene, FinalScene],
   };
 
   var game = new Phaser.Game(config);
-  
+
   return (
     <div>
       {/* Uncommit below to check our DB */}
-       {game}
+      {game}
     </div>
   );
 }

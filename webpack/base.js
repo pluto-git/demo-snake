@@ -3,9 +3,6 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
-
-
-
 module.exports = {
   mode: "development",
   devtool: "eval-source-map",
@@ -32,26 +29,23 @@ module.exports = {
       {
         test: /\.(css|scss)$/,
         use: [
-          'style-loader',
+          "style-loader",
           {
-            loader: 'css-loader',
+            loader: "css-loader",
             options: {
               importLoaders: 1,
               modules: {
                 localIdentName: "[name]__[local]___[hash:base64:5]",
               },
-            }
-          }
+            },
+          },
         ],
-        include: /\.module\.css$/
+        include: /\.module\.css$/,
       },
       {
         test: /\.(css|scss)$/,
-        use: [
-          'style-loader',
-          'css-loader'
-        ],
-        exclude: /\.module\.css$/
+        use: ["style-loader", "css-loader"],
+        exclude: /\.module\.css$/,
       },
       {
         test: /\.js$/,

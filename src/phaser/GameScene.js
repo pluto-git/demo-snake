@@ -5,7 +5,6 @@ var snake;
 var food;
 var cursors;
 
-
 var snakeLevel = 0;
 
 var neededPtsToWin = 0;
@@ -18,7 +17,6 @@ var timedEvent;
 var score = 0;
 var scoringText;
 
-
 //  Direction consts
 var UP = 0;
 var DOWN = 1;
@@ -27,127 +25,122 @@ var RIGHT = 3;
 
 class GameScene extends Phaser.Scene {
   constructor() {
-    super('GameScene');
+    super("GameScene");
   }
 
-  init(data){
-    
-    if(data.time>0){
-    c = data.time;
-    score = 0;
+  init(data) {
+    if (data.time > 0) {
+      c = data.time;
+      score = 0;
     }
     this.name = data.name;
     this.id = data.id;
-    this.level = data.level+1;
-    
+    this.level = data.level + 1;
   }
   preload() {
-    this.load.image('food', coin);
-    this.load.image('body', player);
+    this.load.image("food", coin);
+    this.load.image("body", player);
     this.objects = {};
   }
 
   create() {
     snakeLevel = this.level;
-    neededPtsToWin = snakeLevel*15;
+    neededPtsToWin = snakeLevel * 15;
 
-    console.log("snake level is "+snakeLevel);
+    console.log("snake level is " + snakeLevel);
     //changing the background colour
     this.objects.camera = this.cameras.add(0, 0, 640, 480);
-    this.objects.camera.setBackgroundColor('#2b2e4a');
+    this.objects.camera.setBackgroundColor("#2b2e4a");
 
     //adding a timedEvent( a countdown)
     text = this.add.text(32, 32);
-    timedEvent = this.time.addEvent({ delay: 1000, callback: onEvent, callbackScope: this, loop: true })
-    var levelText = this.add.text(550,32);
+    timedEvent = this.time.addEvent({
+      delay: 1000,
+      callback: onEvent,
+      callbackScope: this,
+      loop: true,
+    });
+    var levelText = this.add.text(550, 32);
     levelText.setText("Level: " + snakeLevel);
-  
-    scoringText = this.add.text(320,32);
-    var Food = new Phaser.Class({
 
+    scoringText = this.add.text(320, 32);
+    var Food = new Phaser.Class({
       Extends: Phaser.GameObjects.Image,
 
-      initialize:
+      initialize: function Food(scene, x, y) {
+        Phaser.GameObjects.Image.call(this, scene);
 
-        function Food(scene, x, y) {
-          Phaser.GameObjects.Image.call(this, scene)
+        this.setTexture("food");
+        this.setPosition(x * 16, y * 16);
+        this.setOrigin(0);
 
-          this.setTexture('food');
-          this.setPosition(x * 16, y * 16);
-          this.setOrigin(0);
+        this.total = 0;
 
-          this.total = 0;
+        scene.children.add(this);
+      },
 
-          scene.children.add(this);
-        },
-
-      eat: function() {
+      eat: function () {
         this.total++;
-        score = this.total*5;
+        score = this.total * 5;
         console.log(score);
-      }
-
+      },
     });
 
     var Snake = new Phaser.Class({
+      initialize: function Snake(scene, x, y) {
+        this.headPosition = new Phaser.Geom.Point(x, y);
 
-      initialize:
+        this.body = scene.add.group();
 
-        function Snake(scene, x, y) {
-          this.headPosition = new Phaser.Geom.Point(x, y);
+        this.head = this.body.create(x * 16, y * 16, "body");
+        this.head.setOrigin(0);
 
-          this.body = scene.add.group();
+        this.alive = true;
+        if (snakeLevel <= 9) {
+          this.speed = 120 - snakeLevel / 10;
+        } else {
+          this.speed = 10;
+        }
 
-          this.head = this.body.create(x * 16, y * 16, 'body');
-          this.head.setOrigin(0);
+        this.moveTime = 0;
 
-          this.alive = true;
-          if(snakeLevel <=9){
-          this.speed = 120-snakeLevel/10;
-          }else{
-            this.speed=10;
-          }
-          
+        this.tail = new Phaser.Geom.Point(x, y);
 
-          this.moveTime = 0;
+        this.heading = RIGHT;
+        this.direction = RIGHT;
+      },
 
-          this.tail = new Phaser.Geom.Point(x, y);
-
-          this.heading = RIGHT;
-          this.direction = RIGHT;
-        },
-
-      update: function(time) {
+      update: function (time) {
         if (time >= this.moveTime) {
           return this.move(time);
         }
       },
 
-      faceLeft: function() {
+      faceLeft: function () {
         if (this.direction === UP || this.direction === DOWN) {
           this.heading = LEFT;
         }
       },
 
-      faceRight: function() {
+      faceRight: function () {
         if (this.direction === UP || this.direction === DOWN) {
           this.heading = RIGHT;
         }
       },
 
-      faceUp: function() {
+      faceUp: function () {
         if (this.direction === LEFT || this.direction === RIGHT) {
           this.heading = UP;
         }
       },
 
-      faceDown: function() {
+      faceDown: function () {
         if (this.direction === LEFT || this.direction === RIGHT) {
           this.heading = DOWN;
         }
       },
 
-      move: function(time) {
+      move: function (time) {
         /**
          * Based on the heading property (which is the direction the pgroup pressed)
          * we update the headPosition value accordingly.
@@ -157,37 +150,63 @@ class GameScene extends Phaser.Scene {
          */
         switch (this.heading) {
           case LEFT:
-            this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x - 1, 0, 40);
+            this.headPosition.x = Phaser.Math.Wrap(
+              this.headPosition.x - 1,
+              0,
+              40
+            );
             break;
 
           case RIGHT:
-            this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x + 1, 0, 40);
+            this.headPosition.x = Phaser.Math.Wrap(
+              this.headPosition.x + 1,
+              0,
+              40
+            );
             break;
 
           case UP:
-            this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y - 1, 0, 30);
+            this.headPosition.y = Phaser.Math.Wrap(
+              this.headPosition.y - 1,
+              0,
+              30
+            );
             break;
 
           case DOWN:
-            this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y + 1, 0, 30);
+            this.headPosition.y = Phaser.Math.Wrap(
+              this.headPosition.y + 1,
+              0,
+              30
+            );
             break;
         }
 
         this.direction = this.heading;
 
         //  Update the body segments and place the last coordinate into this.tail
-        Phaser.Actions.ShiftPosition(this.body.getChildren(), this.headPosition.x * 16, this.headPosition.y * 16, 1, this.tail);
+        Phaser.Actions.ShiftPosition(
+          this.body.getChildren(),
+          this.headPosition.x * 16,
+          this.headPosition.y * 16,
+          1,
+          this.tail
+        );
 
         //  Check to see if any of the body pieces have the same x/y as the head
         //  If they do, the head ran into the body
 
-        var hitBody = Phaser.Actions.GetFirst(this.body.getChildren(), {
-          x: this.head.x,
-          y: this.head.y
-        }, 1);
+        var hitBody = Phaser.Actions.GetFirst(
+          this.body.getChildren(),
+          {
+            x: this.head.x,
+            y: this.head.y,
+          },
+          1
+        );
 
         if (hitBody) {
-          console.log('dead');
+          console.log("dead");
 
           this.alive = false;
 
@@ -200,13 +219,13 @@ class GameScene extends Phaser.Scene {
         }
       },
 
-      grow: function() {
-        var newPart = this.body.create(this.tail.x, this.tail.y, 'body');
+      grow: function () {
+        var newPart = this.body.create(this.tail.x, this.tail.y, "body");
 
         newPart.setOrigin(0);
       },
 
-      collideWithFood: function(food) {
+      collideWithFood: function (food) {
         if (this.head.x === food.x && this.head.y === food.y) {
           this.grow();
 
@@ -223,20 +242,17 @@ class GameScene extends Phaser.Scene {
         }
       },
 
-      updateGrid: function(grid) {
+      updateGrid: function (grid) {
         //  Remove all body pieces from valid positions list
-        this.body.children.each(function(segment) {
-
+        this.body.children.each(function (segment) {
           var bx = segment.x / 16;
           var by = segment.y / 16;
 
           grid[by][bx] = false;
-
         });
 
         return grid;
-      }
-
+      },
     });
 
     food = new Food(this, 3, 4);
@@ -251,17 +267,25 @@ class GameScene extends Phaser.Scene {
     //for the timer
     text.setText("Left s: " + c);
     //for the scoringText
-    scoringText.setText("Score is: "+score+"/"+neededPtsToWin);
-    
+    scoringText.setText("Score is: " + score + "/" + neededPtsToWin);
+
     if (!snake.alive) {
       this.scene.start("FinalScene", {
-        result: "dead", score:score, level:snakeLevel, id: this.id, name: this.name
+        result: "dead",
+        score: score,
+        level: snakeLevel,
+        id: this.id,
+        name: this.name,
       });
     }
     //condition to win
-    if(neededPtsToWin === score){
+    if (neededPtsToWin === score) {
       this.scene.start("FinalScene", {
-        result: "won", score:score, level:snakeLevel, id: this.id, name: this.name
+        result: "won",
+        score: score,
+        level: snakeLevel,
+        id: this.id,
+        name: this.name,
       });
     }
 
@@ -325,7 +349,7 @@ function repositionFood() {
         //  Is this position valid for food? If so, add it here ...
         validLocations.push({
           x: x,
-          y: y
+          y: y,
         });
       }
     }
@@ -344,17 +368,19 @@ function repositionFood() {
   }
 }
 
-
 function onEvent() {
   //our time
-  c-=1;
+  c -= 1;
   //if the timer is ticked
-  if (c === 0)
-  {
-      timedEvent.remove(false);
-      this.scene.start("FinalScene", {
-        result: "dead", score:score, level:snakeLevel, id: this.id, name: this.name
-      });
+  if (c === 0) {
+    timedEvent.remove(false);
+    this.scene.start("FinalScene", {
+      result: "dead",
+      score: score,
+      level: snakeLevel,
+      id: this.id,
+      name: this.name,
+    });
   }
 }
 export default GameScene;

@@ -4,7 +4,7 @@ import buttonToTopScores from "../assets/image/topScores_button.png";
 import { fetchingGET, fetchingPOST } from "./fetching.js";
 
 import React from "react";
-import { Redirect} from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import RatingTable from "../components/RatingTable.jsx";
 
 class FinalScene extends Phaser.Scene {
@@ -26,14 +26,26 @@ class FinalScene extends Phaser.Scene {
     this.objects = {};
   }
   create() {
+    //for post fetches
+    var data = {
+      login: "",
+      score: 0,
+      _id: "",
+      currentLevel: 0
+    };
+    var deadData = {
+      currentLevel: 0,
+      _id: "",
+    };
     this.objects.camera = this.cameras.add(0, 0, 640, 480);
     this.objects.camera.setBackgroundColor("#2b2e4a");
 
     if (this.result === "dead") {
-      var data = {
+      deadData = {
         currentLevel: 0,
+        _id: data.id,
       };
-      fetchingPOST(data);
+      fetchingPOST(deadData);
       this.losingText = this.add.text(
         240,
         140,
@@ -50,17 +62,17 @@ class FinalScene extends Phaser.Scene {
         this.scene.start("GameScene", {
           time: 60,
           mode: "death",
-          level:0
+          level: 0,
         });
       });
     } else if (this.result === "won") {
-      var data = {
+      console.log(this.level);
+        data = {
         login: this.name,
         score: this.score,
         _id: this.id,
         currentLevel: this.level,
       };
-      console.log(this.level);
       fetchingPOST(data);
 
       this.continueButton = this.add.image(320, 240, "nextLevel_button");
@@ -80,13 +92,14 @@ class FinalScene extends Phaser.Scene {
     this.topScoreButton.setInteractive();
     this.topScoreButton.on("pointerdown", () => {
       fetchingGET();
-      var data = {
-        login: this.name,
-        score: this.score,
-        _id: this.id,
-        currentLevel: this.level,
-      };
+
       if (this.result === "won") {
+        data = {
+          login: this.name,
+          score: this.score,
+          _id: this.id,
+          currentLevel: this.level,
+        };
         fetchingPOST(data);
       }
     });
